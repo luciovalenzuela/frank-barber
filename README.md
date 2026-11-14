@@ -1,0 +1,121 @@
+# Frank Barber — sitio web
+
+Landing de una sola página para la barbería Frank Barber.
+
+- **Stack:** Next.js (App Router) + TypeScript + Tailwind CSS v4
+- **Hosting:** Vercel, conectado a un repo de GitHub
+- **Sin backend:** el sitio es 100 % estático. El formulario de contacto abre WhatsApp o el cliente de correo del visitante.
+
+## Requisitos
+
+- Node.js 22 (LTS). Con nvm: `nvm install 22 && nvm use 22`.
+
+## Correr en local
+
+```bash
+npm install     # solo la primera vez, o cuando cambian las dependencias
+npm run dev     # http://localhost:3000
+```
+
+Otros comandos:
+
+| Comando         | Qué hace                                             |
+| --------------- | ---------------------------------------------------- |
+| `npm run lint`  | Revisa el código con ESLint                          |
+| `npm run build` | Genera el build de producción (lo mismo que Vercel)  |
+| `npm run start` | Sirve el build de producción en local                |
+
+## Dónde se edita cada cosa
+
+```
+src/
+├── app/
+│   ├── layout.tsx            # <html>, tipografías, meta tags, Open Graph, JSON-LD
+│   ├── page.tsx              # Orden de las secciones de la landing
+│   ├── globals.css           # Paleta, tipografías y animaciones
+│   ├── opengraph-image.tsx   # Imagen que aparece al compartir el link
+│   ├── icon.svg              # Favicon
+│   ├── robots.ts / sitemap.ts
+├── components/
+│   ├── layout/               # Header y Footer
+│   ├── sections/             # Hero, Services, Gallery, About, Location, Contact
+│   └── ui/                   # Piezas reutilizables (botón, foto, íconos, Reveal…)
+└── content/
+    └── site.ts               # ← TODO el contenido: textos, precios, horarios, contacto
+public/
+└── images/                   # Fotos del sitio
+```
+
+### Contenido pendiente
+
+Todos los textos y datos están en [`src/content/site.ts`](src/content/site.ts). Lo que
+todavía es de ejemplo está marcado con `COMPLETAR`:
+
+- WhatsApp, teléfono, email e Instagram
+- Dirección (también ubica el mapa)
+- Servicios y precios
+- Horarios
+- Texto de "Nosotros" y equipo
+
+### Fotos
+
+1. Copiar las imágenes a `public/images/` (JPG o WebP, idealmente de no más de ~2000 px de ancho).
+2. En `src/content/site.ts`, completar la ruta:
+   - Galería: `{ src: "/images/galeria-1.jpg", alt: "Corte degradado", tall: true }`
+   - Equipo: `{ name: "Frank", role: "Fundador y barbero", photo: "/images/frank.jpg" }`
+   - Hero: `image: "/images/hero.jpg"`
+
+Mientras una foto no tenga `src`, se muestra un placeholder con el mismo tamaño.
+Next.js optimiza las imágenes automáticamente (tamaños y formatos modernos).
+
+### Colores y tipografías
+
+- Paleta: bloque `@theme` en `src/app/globals.css` (`ink`, `coal`, `leather`, `saddle`, `gold`, `cream`, `sand`).
+- Tipografías: `src/app/layout.tsx` (DM Serif Display para títulos, Manrope para texto).
+
+## Deploy
+
+El sitio se publica en Vercel. Una vez conectado el repo (ver abajo), **cada push a
+`main` se publica solo** en producción, y cada rama o pull request genera una URL de
+preview.
+
+Flujo para publicar cambios:
+
+```bash
+git add .
+git commit -m "Describir el cambio"
+git push
+```
+
+A los ~60 segundos el cambio está online. El estado de cada deploy se ve en el
+dashboard de Vercel.
+
+### Configuración inicial (una sola vez)
+
+**1. Crear el repo en GitHub y subir el código**
+
+1. Entrar a <https://github.com/new>.
+2. Nombre: `frank-barber`. Elegir Private o Public. **No** marcar "Add a README",
+   `.gitignore` ni licencia (el repo tiene que quedar vacío).
+3. Crear el repo y, desde la carpeta del proyecto, correr (reemplazando `USUARIO`):
+
+```bash
+git remote add origin https://github.com/USUARIO/frank-barber.git
+git push -u origin main
+```
+
+**2. Conectar el repo a Vercel**
+
+1. Entrar a <https://vercel.com/new>.
+2. En "Import Git Repository", elegir `frank-barber`. Si no aparece, usar "Adjust
+   GitHub App Permissions" para darle acceso a Vercel a ese repo.
+3. Vercel detecta Next.js solo: dejar todo por defecto y tocar **Deploy**.
+4. Al terminar, el sitio queda en una URL del tipo `https://frank-barber.vercel.app`.
+
+**3. Dominio propio (opcional)**
+
+En Vercel: Project → Settings → Domains → agregar el dominio y seguir las
+instrucciones de DNS. Las URLs de SEO (canonical, Open Graph, sitemap) toman el
+dominio de producción automáticamente; para forzar otro, definir la variable de
+entorno `NEXT_PUBLIC_SITE_URL` (ej. `https://frankbarber.com.ar`) en
+Settings → Environment Variables y volver a deployar.

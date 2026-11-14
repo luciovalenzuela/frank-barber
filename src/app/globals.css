@@ -1,0 +1,92 @@
+@import "tailwindcss";
+
+/* Paleta y tipografías de Frank Barber. Se usan como utilidades de Tailwind:
+   bg-ink, text-gold, font-display, etc. */
+@theme inline {
+  --color-ink: #0c0a08;
+  --color-coal: #15110d;
+  --color-leather: #24180f;
+  --color-saddle: #6b4423;
+  --color-gold: #c8a04a;
+  --color-gold-soft: #e2c583;
+  --color-cream: #f1e8d8;
+  --color-sand: #a99b86;
+  --color-line: #33271c;
+
+  --font-sans: var(--font-manrope), ui-sans-serif, system-ui, sans-serif;
+  --font-display: var(--font-dm-serif), ui-serif, Georgia, serif;
+}
+
+html {
+  scroll-behavior: smooth;
+  /* Compensa el header fijo al navegar a un ancla. */
+  scroll-padding-top: 5rem;
+  background: var(--color-ink);
+}
+
+body {
+  background: var(--color-ink);
+  color: var(--color-cream);
+}
+
+::selection {
+  background: var(--color-gold);
+  color: var(--color-ink);
+}
+
+:focus-visible {
+  outline: 2px solid var(--color-gold);
+  outline-offset: 3px;
+}
+
+/* Animación de entrada al hacer scroll (ver components/ui/Reveal.tsx). */
+.reveal {
+  opacity: 0;
+  transform: translateY(18px);
+  transition:
+    opacity 0.7s ease,
+    transform 0.7s ease;
+  transition-delay: var(--reveal-delay, 0ms);
+}
+
+.reveal[data-visible="true"] {
+  opacity: 1;
+  transform: none;
+}
+
+/* Entrada del hero al cargar la página: CSS puro, no espera a JavaScript. */
+.fade-up {
+  animation: fade-up 0.8s ease both;
+}
+
+@keyframes fade-up {
+  from {
+    opacity: 0;
+    transform: translateY(18px);
+  }
+}
+
+/* Franjas diagonales tipo poste de barbero, muy sutiles, para fondos y placeholders. */
+.barber-stripes {
+  background-image: repeating-linear-gradient(
+    135deg,
+    rgb(200 160 74 / 0.07) 0 14px,
+    transparent 14px 42px
+  );
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+
+  .reveal {
+    opacity: 1;
+    transform: none;
+    transition: none;
+  }
+
+  .fade-up {
+    animation: none;
+  }
+}
