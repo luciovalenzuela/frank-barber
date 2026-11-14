@@ -1,15 +1,8 @@
+import Image from "next/image";
 import { site } from "@/content/site";
+import logo from "../../../public/images/logo-fb.png";
 
-/** Logotipo tipográfico. Cuando haya un logo real, reemplazar por un <Image />. */
-export function Logo({ className = "" }: { className?: string }) {
-  const [first, ...rest] = site.name.split(" ");
-
-  return (
-    <span className={`inline-flex items-baseline gap-2 ${className}`}>
-      <span className="font-display text-2xl leading-none text-cream">{first}</span>
-      <span className="text-[0.7rem] font-semibold uppercase tracking-[0.35em] text-gold">
-        {rest.join(" ")}
-      </span>
-    </span>
-  );
+/** Logo real de la barbería: monograma "FB · Haircut and Shave", en crema sobre transparente. */
+export function Logo({ className = "h-9 w-auto", priority = false }: { className?: string; priority?: boolean }) {
+  return <Image src={logo} alt={site.name} className={className} priority={priority} sizes="(min-width: 1024px) 480px, 384px" />;
 }

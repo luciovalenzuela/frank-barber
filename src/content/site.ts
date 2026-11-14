@@ -15,8 +15,10 @@ export const siteUrl =
 
 export const site = {
   name: "Frank Barber",
-  // COMPLETAR: frase propia de la barbería, si tienen una.
-  tagline: "Cada cliente es único, y su corte también.",
+  /** El lema que usan en Instagram. */
+  tagline: "Encontrá tu mejor versión.",
+  /** Cómo se presentan: "Brindamos la mejor experiencia en cada servicio". */
+  promise: "La mejor experiencia en cada servicio.",
   description:
     "Frank Barber, barbería en Caseros. Corte, barba y afeitado con asesoramiento personalizado. Reservá tu turno online o por WhatsApp.",
 
@@ -69,6 +71,8 @@ export type Service = {
   durationMinutes: number;
   /** Etiqueta opcional. Los servicios con etiqueta se muestran destacados. */
   badge?: string;
+  /** Qué incluye, en pocas palabras. Se muestra al reservar. */
+  includes: string[];
 };
 
 /** Servicios y precios. Actualizar acá cuando cambien: valen para la landing y para las reservas. */
@@ -80,6 +84,7 @@ export const services: Service[] = [
       "Con asesoramiento profesional, adaptado a tus rasgos y tu estilo. Incluye lavado premium con productos Schwarzkopf.",
     priceArs: 19000,
     durationMinutes: 30,
+    includes: ["Asesoramiento profesional", "Lavado premium Schwarzkopf", "Café de Café Martínez"],
   },
   {
     id: "corte-y-barba",
@@ -88,6 +93,7 @@ export const services: Service[] = [
       "Corte de cabello y arreglo de barba con asesoramiento personalizado, vapor facial iónico y lavado premium.",
     priceArs: 24000,
     durationMinutes: 60,
+    includes: ["Corte + arreglo de barba", "Vapor facial iónico", "Lavado premium Schwarzkopf", "Café de Café Martínez"],
     badge: "Servicio completo",
   },
   {
@@ -97,6 +103,7 @@ export const services: Service[] = [
       "Perfilado limpio y preciso, con vapor facial iónico y tónicos y aceites que hidratan y ayudan a modelar la barba.",
     priceArs: 18000,
     durationMinutes: 30,
+    includes: ["Perfilado a medida", "Vapor facial iónico", "Tónicos y aceites", "Café de Café Martínez"],
   },
   {
     id: "afeitado",
@@ -105,6 +112,7 @@ export const services: Service[] = [
       "Afeitado al ras con vapor facial iónico y productos para hidratar, calmar y proteger la piel.",
     priceArs: 18000,
     durationMinutes: 30,
+    includes: ["Afeitado al ras", "Vapor facial iónico", "Hidratación de la piel", "Café de Café Martínez"],
   },
   {
     id: "corte-y-afeitado",
@@ -113,6 +121,7 @@ export const services: Service[] = [
       "Corte de cabello y afeitado al ras, con asesoramiento personalizado, vapor facial iónico y lavado premium.",
     priceArs: 24000,
     durationMinutes: 60,
+    includes: ["Corte + afeitado al ras", "Vapor facial iónico", "Lavado premium Schwarzkopf", "Café de Café Martínez"],
   },
 ];
 
@@ -148,7 +157,7 @@ export const gallery: GalleryItem[] = [
 ];
 
 export const hero = {
-  eyebrow: "Barbería en Caseros",
+  eyebrow: "Barbería profesional · Caseros",
   /** Opcional: imagen de fondo dentro de /public (ej. "/images/hero.jpg"). */
   image: undefined as string | undefined,
 };

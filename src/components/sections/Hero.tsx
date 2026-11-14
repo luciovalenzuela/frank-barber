@@ -2,6 +2,7 @@ import Image from "next/image";
 import { bookingLink, hero, site, whatsappLink } from "@/content/site";
 import { ButtonLink } from "@/components/ui/Button";
 import { WhatsAppIcon } from "@/components/ui/icons";
+import { Logo } from "@/components/ui/Logo";
 
 export function Hero() {
   return (
@@ -21,8 +22,8 @@ export function Hero() {
           <p className="text-xs font-bold uppercase tracking-[0.4em] text-gold">{hero.eyebrow}</p>
         </div>
         <div className="fade-up [animation-delay:120ms]">
-          <h1 className="mt-5 font-display text-6xl leading-[0.95] text-cream sm:text-8xl lg:text-9xl">
-            {site.name}
+          <h1 className="mt-6">
+            <Logo priority className="h-auto w-64 sm:w-96 lg:w-[30rem]" />
           </h1>
         </div>
         <div className="fade-up [animation-delay:240ms]">

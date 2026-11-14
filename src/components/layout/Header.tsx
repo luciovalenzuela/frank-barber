@@ -27,7 +27,7 @@ export function Header() {
     >
       <div className="mx-auto flex h-16 max-w-6xl items-center justify-between gap-4 px-5 sm:h-20">
         <a href="#inicio" aria-label="Frank Barber, ir al inicio" onClick={() => setMenuOpen(false)}>
-          <Logo />
+          <Logo priority className="h-9 w-auto sm:h-11" />
         </a>
 
         <nav aria-label="Principal" className="hidden items-center gap-8 lg:flex">

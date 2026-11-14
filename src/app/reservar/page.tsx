@@ -16,10 +16,11 @@ export default function ReservarPage() {
     <PageShell>
       <p className="text-xs font-bold uppercase tracking-[0.35em] text-gold">Turnos</p>
       <h1 className="mt-3 font-display text-4xl text-cream sm:text-5xl">Reservá tu turno</h1>
+      <p className="mt-3 text-sand">{site.promise}</p>
 
       {isDatabaseConfigured() ? (
         <div className="mt-10">
-          <BookingForm services={services} barbers={barbers.map(({ id, name }) => ({ id, name }))} />
+          <BookingForm services={services} barbers={barbers.map(({ id, name, role }) => ({ id, name, role }))} />
         </div>
       ) : (
         // Mientras la base de datos no esté configurada en producción, se ofrece lo que ya funciona.

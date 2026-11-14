@@ -20,9 +20,11 @@ type Props = PageProps<"/turno/[token]">;
 export default function TurnoPage({ params, searchParams }: Props) {
   return (
     <PageShell>
-      <Suspense fallback={<p className="text-sand">Buscando tu turno…</p>}>
-        <AppointmentView params={params} searchParams={searchParams} />
-      </Suspense>
+      <div className="mx-auto max-w-2xl">
+        <Suspense fallback={<p className="text-sand">Buscando tu turno…</p>}>
+          <AppointmentView params={params} searchParams={searchParams} />
+        </Suspense>
+      </div>
     </PageShell>
   );
 }

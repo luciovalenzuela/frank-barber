@@ -13,8 +13,8 @@ export const ANY_BARBER = "cualquiera";
 export type DayAvailability = {
   /** Fecha local, YYYY-MM-DD. */
   date: string;
-  /** Horas de inicio libres, HH:MM. Vacío si está cerrado o completo. */
-  times: string[];
+  /** Horarios con al menos un barbero libre. Vacío si está cerrado o completo. */
+  slots: { time: string; barberIds: string[] }[];
 };
 
 export type DayHours = { open: string; close: string } | null;

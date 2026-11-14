@@ -111,12 +111,12 @@ function slotsFor(date: string, durationMinutes: number, barberIds: string[], bu
   });
 }
 
-/** Días reservables desde hoy, con los horarios libres de cada uno. */
-export async function getAvailability(serviceId: string, barberChoice: string): Promise<DayAvailability[] | null> {
+/** Días reservables desde hoy, con los horarios libres y qué barberos pueden en cada uno. */
+export async function getAvailability(serviceId: string): Promise<DayAvailability[] | null> {
   const service = services.find((item) => item.id === serviceId);
-  const barberIds = resolveBarberIds(barberChoice);
-  if (!service || !barberIds) return null;
+  if (!service) return null;
 
+  const barberIds = barbers.map((barber) => barber.id);
   const now = new Date();
   const today = localDate(now, booking.timeZone);
   const dates = Array.from({ length: booking.daysAhead }, (_, index) => addDays(today, index));
@@ -125,7 +125,10 @@ export async function getAvailability(serviceId: string, barberChoice: string): 
 
   return dates.map((date) => ({
     date,
-    times: slotsFor(date, service.durationMinutes, barberIds, busy, now).map((slot) => slot.time),
+    slots: slotsFor(date, service.durationMinutes, barberIds, busy, now).map((slot) => ({
+      time: slot.time,
+      barberIds: slot.barberIds,
+    })),
   }));
 }
 
