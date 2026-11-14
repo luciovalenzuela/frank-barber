@@ -7,8 +7,9 @@
  */
 
 /** URL pública del sitio. En Vercel se resuelve sola; se puede forzar con NEXT_PUBLIC_SITE_URL. */
+// Con `||` y no `??`: una variable definida pero vacía (como en .env.example) cuenta como no definida.
 export const siteUrl =
-  process.env.NEXT_PUBLIC_SITE_URL ??
+  process.env.NEXT_PUBLIC_SITE_URL ||
   (process.env.VERCEL_PROJECT_PRODUCTION_URL
     ? `https://${process.env.VERCEL_PROJECT_PRODUCTION_URL}`
     : "http://localhost:3000");
