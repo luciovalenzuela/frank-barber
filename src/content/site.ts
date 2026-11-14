@@ -76,7 +76,11 @@ export type Service = {
   includes: string[];
 };
 
-/** Servicios y precios. Actualizar acá cuando cambien: valen para la landing y para las reservas. */
+/**
+ * Servicios y precios DE RESPALDO. Los que se usan de verdad están en la base
+ * (tabla `services`, se editan en Supabase); estos solo se muestran si la base
+ * no está configurada.
+ */
 export const services: Service[] = [
   {
     id: "corte",
@@ -186,7 +190,7 @@ export type Barber = {
   photo?: string;
 };
 
-// COMPLETAR: fotos del equipo en /public/images, y roles si quieren distinguirlos.
+/** Barberos DE RESPALDO: los reales están en la tabla `barbers` de la base. */
 export const barbers: Barber[] = [
   { id: "franco", name: "Franco", role: "Barbero" },
   { id: "lisandro", name: "Lisandro", role: "Barbero" },
@@ -208,8 +212,11 @@ export const openingHours: OpeningHours[] = [
 export type DayHours = { open: string; close: string } | null;
 
 export const booking = {
-  /** Con la variable NEXT_PUBLIC_ONLINE_BOOKING=1, "Reservar turno" lleva a /reservar en vez de a AgendaPro. */
-  enabled: process.env.NEXT_PUBLIC_ONLINE_BOOKING === "1",
+  /**
+   * "Reservar turno" lleva a /reservar. Con NEXT_PUBLIC_ONLINE_BOOKING=0 vuelve a llevar a AgendaPro
+   * (por ejemplo, si hay un problema y hay que volver atrás rápido).
+   */
+  enabled: process.env.NEXT_PUBLIC_ONLINE_BOOKING !== "0",
   timeZone: "America/Argentina/Buenos_Aires",
   /** Argentina no cambia la hora, así que el desfasaje con UTC es fijo. */
   utcOffset: "-03:00",
@@ -222,8 +229,8 @@ export const booking = {
   /** Turnos futuros que puede tener un mismo email a la vez. */
   maxActivePerClient: 3,
   /**
-   * Horario de atención por día (0 = domingo … 6 = sábado). Tiene que coincidir con `openingHours`.
-   * COMPLETAR: hoy todos los barberos atienden todo el horario; falta cargar francos y horarios propios.
+   * Horario de atención por día (0 = domingo … 6 = sábado), DE RESPALDO. El horario real de
+   * cada barbero está en la tabla `barber_hours` de la base (ahí se cargan francos).
    */
   weeklyHours: {
     0: null,

@@ -15,13 +15,13 @@ const OFFSET = "-03:00";
 const at = (date: string, time: string) => toInstant(date, time, OFFSET);
 
 // Sábado 14/11/2026, 9:30 a 20:30.
+const SAT = { open: "09:30", close: "20:30" };
 const base: FreeSlotsInput = {
   date: "2026-11-14",
-  hours: { open: "09:30", close: "20:30" },
+  barberHours: { franco: SAT },
   durationMinutes: 30,
   slotMinutes: 30,
   utcOffset: OFFSET,
-  barberIds: ["franco"],
   busy: {},
   notBefore: 0,
 };
@@ -50,7 +50,7 @@ test("sumar días y día de la semana", () => {
 });
 
 test("un día cerrado no tiene horarios", () => {
-  assert.deepEqual(freeSlots({ ...base, hours: null }), []);
+  assert.deepEqual(freeSlots({ ...base, barberHours: { franco: null } }), []);
 });
 
 test("un servicio de 30 min ocupa todo el horario, hasta media hora antes del cierre", () => {
@@ -88,14 +88,24 @@ test("un servicio de 60 min no entra si pisa un turno que empieza media hora des
 
 test("sin preferencia: el horario sigue libre mientras quede un barbero", () => {
   const taken = [{ start: at("2026-11-14", "10:00"), end: at("2026-11-14", "10:30") }];
-  const oneBusy = freeSlots({ ...base, barberIds: ["franco", "lisandro"], busy: { franco: taken } });
+  const oneBusy = freeSlots({ ...base, barberHours: { franco: SAT, lisandro: SAT }, busy: { franco: taken } });
   assert.deepEqual(oneBusy.find((slot) => slot.time === "10:00")?.barberIds, ["lisandro"]);
 
-  const allBusy = times({ ...base, barberIds: ["franco", "lisandro"], busy: { franco: taken, lisandro: taken } });
+  const allBusy = times({ ...base, barberHours: { franco: SAT, lisandro: SAT }, busy: { franco: taken, lisandro: taken } });
   assert.equal(allBusy.includes("10:00"), false);
 });
 
 test("no se ofrecen horarios anteriores al mínimo de anticipación", () => {
   const result = times({ ...base, notBefore: at("2026-11-14", "15:10") });
   assert.equal(result[0], "15:30");
+});
+
+test("cada barbero tiene su horario: el que entra más tarde no aparece antes de su hora", () => {
+  const result = freeSlots({
+    ...base,
+    barberHours: { franco: SAT, lisandro: { open: "14:00", close: "20:30" }, hernan: null },
+  });
+  assert.deepEqual(result.find((slot) => slot.time === "10:00")?.barberIds, ["franco"]);
+  assert.deepEqual(result.find((slot) => slot.time === "14:00")?.barberIds, ["franco", "lisandro"]);
+  assert.equal(result.some((slot) => slot.barberIds.includes("hernan")), false);
 });

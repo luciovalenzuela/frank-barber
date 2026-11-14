@@ -1,6 +1,6 @@
 import type { Metadata, Viewport } from "next";
 import { DM_Serif_Display, Manrope } from "next/font/google";
-import { instagramLink, site, siteUrl } from "@/content/site";
+import { booking, instagramLink, site, siteUrl } from "@/content/site";
 import "./globals.css";
 
 const display = DM_Serif_Display({
@@ -77,7 +77,10 @@ const jsonLd = {
       closes: "20:30",
     },
   ],
-  potentialAction: { "@type": "ReserveAction", target: site.bookingUrl },
+  potentialAction: {
+    "@type": "ReserveAction",
+    target: booking.enabled ? `${siteUrl}/reservar` : site.bookingUrl,
+  },
   sameAs: [instagramLink],
 };
 

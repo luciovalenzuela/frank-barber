@@ -7,7 +7,7 @@ import { PageShell } from "@/components/layout/PageShell";
 import { ButtonLink, buttonClasses } from "@/components/ui/Button";
 import { getAppointment, hasStarted, type Appointment } from "@/server/booking";
 import { isDatabaseConfigured } from "@/server/db/client";
-import { formatDay, formatTime } from "@/server/emails";
+import { formatDay, formatTime, isEmailConfigured } from "@/server/emails";
 
 export const metadata: Metadata = {
   title: "Tu turno",
@@ -104,8 +104,14 @@ async function AppointmentView({ params, searchParams }: Props) {
 
       {justBooked ? (
         <p className="mt-5 max-w-xl leading-relaxed text-sand">
-          Te mandamos la confirmación a <span className="text-cream">{appointment.clientEmail}</span>. Si no la ves,
-          revisá el correo no deseado.
+          {isEmailConfigured() ? (
+            <>
+              Te mandamos la confirmación a <span className="text-cream">{appointment.clientEmail}</span>. Si no la
+              ves, revisá el correo no deseado.
+            </>
+          ) : (
+            <>Guardá el link de esta página: desde acá podés ver o cancelar tu turno.</>
+          )}
         </p>
       ) : null}
 

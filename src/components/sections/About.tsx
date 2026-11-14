@@ -1,9 +1,11 @@
-import { about, barbers } from "@/content/site";
+import { about } from "@/content/site";
 import { Photo } from "@/components/ui/Photo";
 import { Reveal } from "@/components/ui/Reveal";
 import { SectionHeading } from "@/components/ui/SectionHeading";
+import { getPublicCatalog } from "@/server/catalog";
 
-export function About() {
+export async function About() {
+  const { barbers } = await getPublicCatalog();
   return (
     <section id="nosotros" className="bg-coal py-20 sm:py-28">
       <div className="mx-auto max-w-6xl px-5">

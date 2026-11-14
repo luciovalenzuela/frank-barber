@@ -4,51 +4,84 @@ import { booking, formatPrice, fullAddress, mapLink, site, siteUrl } from "@/con
 import type { Appointment } from "./booking";
 
 /**
- * Envío de mails con Resend (https://resend.com).
+ * Envío de mails. Se elige el primer medio configurado:
  *
- * Variables de entorno:
- * - RESEND_API_KEY: clave de la API. Sin ella, en desarrollo los mails se
- *   guardan como archivos en .data/outbox para poder verlos.
- * - EMAIL_FROM: remitente, con un dominio verificado en Resend.
- *   Ej.: "Frank Barber <turnos@frankbarber.com.ar>"
- * - BOOKING_NOTIFY_EMAIL (opcional): casilla de la barbería que recibe un
- *   aviso por cada turno nuevo o cancelado.
+ * 1. Gmail (o cualquier SMTP): SMTP_USER y SMTP_PASS. Para Gmail, SMTP_PASS es
+ *    una "contraseña de aplicación" (no la contraseña de la cuenta). Sirve sin
+ *    dominio propio; Gmail permite unos 500 mails por día.
+ *    SMTP_HOST y SMTP_PORT son opcionales (por defecto, los de Gmail).
+ * 2. Resend: RESEND_API_KEY. Necesita un dominio propio verificado en Resend.
+ *
+ * EMAIL_FROM: remitente que ve el cliente. Con Gmail, tiene que ser la misma
+ * casilla: "Frank Barber <frankbarber.turnos@gmail.com>". Si falta, se usa
+ * SMTP_USER con el nombre de la barbería.
+ *
+ * BOOKING_NOTIFY_EMAIL (opcional): casilla de la barbería que recibe un aviso
+ * por cada turno nuevo o cancelado.
+ *
+ * Sin nada configurado: en desarrollo los mails se guardan en .data/outbox;
+ * en producción no se envían (queda registrado en los logs).
  */
 
 type Email = { to: string; subject: string; html: string; replyTo?: string };
 
-async function send(email: Email) {
-  const apiKey = process.env.RESEND_API_KEY;
-  const from = process.env.EMAIL_FROM;
+/** ¿Hay algún medio de envío configurado? */
+export function isEmailConfigured() {
+  return Boolean((process.env.SMTP_USER && process.env.SMTP_PASS) || process.env.RESEND_API_KEY);
+}
 
-  if (!apiKey || !from) {
-    if (process.env.NODE_ENV === "production") {
-      console.error(`[mail] Falta RESEND_API_KEY o EMAIL_FROM: no se envió "${email.subject}".`);
-      return;
-    }
-    const dir = join(process.cwd(), ".data/outbox");
-    await mkdir(dir, { recursive: true });
-    const file = join(dir, `${Date.now()}-${email.subject.replace(/[^\p{L}\d]+/gu, "-").slice(0, 60)}.html`);
-    await writeFile(file, `<!-- Para: ${email.to} | Asunto: ${email.subject} -->\n${email.html}`);
-    console.log(`[mail] Sin RESEND_API_KEY: guardado en ${file}`);
-    return;
-  }
+function sender() {
+  return process.env.EMAIL_FROM || (process.env.SMTP_USER ? `${site.name} <${process.env.SMTP_USER}>` : "");
+}
 
+async function sendWithSmtp(email: Email) {
+  const { createTransport } = await import("nodemailer");
+  const port = Number(process.env.SMTP_PORT || 465);
+  const transport = createTransport({
+    host: process.env.SMTP_HOST || "smtp.gmail.com",
+    port,
+    secure: port === 465,
+    auth: { user: process.env.SMTP_USER, pass: process.env.SMTP_PASS },
+  });
+  await transport.sendMail({
+    from: sender(),
+    to: email.to,
+    subject: email.subject,
+    html: email.html,
+    replyTo: email.replyTo,
+  });
+}
+
+async function sendWithResend(email: Email) {
   const response = await fetch("https://api.resend.com/emails", {
     method: "POST",
-    headers: { Authorization: `Bearer ${apiKey}`, "Content-Type": "application/json" },
+    headers: { Authorization: `Bearer ${process.env.RESEND_API_KEY}`, "Content-Type": "application/json" },
     body: JSON.stringify({
-      from,
+      from: sender(),
       to: email.to,
       subject: email.subject,
       html: email.html,
       reply_to: email.replyTo,
     }),
   });
-
   if (!response.ok) {
     throw new Error(`Resend respondió ${response.status}: ${await response.text()}`);
   }
+}
+
+async function send(email: Email) {
+  if (process.env.SMTP_USER && process.env.SMTP_PASS) return sendWithSmtp(email);
+  if (process.env.RESEND_API_KEY) return sendWithResend(email);
+
+  if (process.env.NODE_ENV === "production") {
+    console.error(`[mail] No hay medio de envío configurado: no se envió "${email.subject}".`);
+    return;
+  }
+  const dir = join(process.cwd(), ".data/outbox");
+  await mkdir(dir, { recursive: true });
+  const file = join(dir, `${Date.now()}-${email.subject.replace(/[^\p{L}\d]+/gu, "-").slice(0, 60)}.html`);
+  await writeFile(file, `<!-- Para: ${email.to} | Asunto: ${email.subject} -->\n${email.html}`);
+  console.log(`[mail] Sin medio de envío configurado: guardado en ${file}`);
 }
 
 /** Un mail que falla no tiene que hacer fallar la reserva: se registra y se sigue. */

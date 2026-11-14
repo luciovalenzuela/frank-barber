@@ -85,13 +85,14 @@ function overlaps(a: Interval, b: Interval) {
 
 export type FreeSlotsInput = {
   date: string;
-  /** Horario de atención de ese día; `null` si está cerrado. */
-  hours: DayHours;
+  /**
+   * Horario de ese día de cada barbero a considerar (uno solo, o todos si el
+   * cliente no tiene preferencia). `null` = ese día no atiende.
+   */
+  barberHours: Record<string, DayHours>;
   durationMinutes: number;
   slotMinutes: number;
   utcOffset: string;
-  /** Barberos a considerar: uno solo, o todos si el cliente no tiene preferencia. */
-  barberIds: string[];
   /** Turnos ya tomados de cada barbero. */
   busy: Record<string, Interval[]>;
   /** No se ofrecen horarios que empiecen antes de este instante (ms UTC). */
@@ -100,28 +101,32 @@ export type FreeSlotsInput = {
 
 /**
  * Horarios de un día en los que al menos un barbero puede hacer el servicio
- * completo: arranca dentro del horario, termina antes del cierre y no pisa
- * ningún turno existente.
+ * completo: arranca dentro de su horario, termina antes de que se vaya y no
+ * pisa ninguno de sus turnos.
  */
 export function freeSlots(input: FreeSlotsInput): Slot[] {
-  const { date, hours, durationMinutes, slotMinutes, utcOffset, barberIds, busy, notBefore } = input;
-  if (!hours) return [];
+  const { date, barberHours, durationMinutes, slotMinutes, utcOffset, busy, notBefore } = input;
+  const byTime = new Map<number, string[]>();
 
-  const lastStart = toMinutes(hours.close) - durationMinutes;
-  const slots: Slot[] = [];
+  for (const [barberId, hours] of Object.entries(barberHours)) {
+    if (!hours) continue;
+    const lastStart = toMinutes(hours.close) - durationMinutes;
 
-  for (let minutes = toMinutes(hours.open); minutes <= lastStart; minutes += slotMinutes) {
-    const time = toTime(minutes);
-    const start = toInstant(date, time, utcOffset);
-    if (start < notBefore) continue;
+    for (let minutes = toMinutes(hours.open); minutes <= lastStart; minutes += slotMinutes) {
+      const start = toInstant(date, toTime(minutes), utcOffset);
+      if (start < notBefore) continue;
 
-    const wanted: Interval = { start, end: start + durationMinutes * 60_000 };
-    const free = barberIds.filter((id) => !(busy[id] ?? []).some((taken) => overlaps(wanted, taken)));
+      const wanted: Interval = { start, end: start + durationMinutes * 60_000 };
+      if ((busy[barberId] ?? []).some((taken) => overlaps(wanted, taken))) continue;
 
-    if (free.length > 0) {
-      slots.push({ time, startsAt: new Date(start).toISOString(), barberIds: free });
+      byTime.set(minutes, [...(byTime.get(minutes) ?? []), barberId]);
     }
   }
 
-  return slots;
+  return [...byTime.entries()]
+    .sort(([a], [b]) => a - b)
+    .map(([minutes, barberIds]) => {
+      const time = toTime(minutes);
+      return { time, startsAt: new Date(toInstant(date, time, utcOffset)).toISOString(), barberIds };
+    });
 }

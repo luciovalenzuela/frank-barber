@@ -88,43 +88,65 @@ Next.js optimiza las imágenes automáticamente (tamaños y formatos modernos).
 
 ## Turnos online
 
-El cliente reserva en `/reservar`: elige servicio, barbero (o "sin preferencia"), día y
-horario, y deja nombre, email y teléfono. El turno se guarda en la base, recibe un mail
-de confirmación y un link personal (`/turno/…`) para verlo o cancelarlo.
+El cliente reserva en `/reservar` en cuatro pasos: servicio, día y hora, barbero (o "sin
+preferencia") y sus datos. El turno se guarda en la base, recibe un mail de confirmación
+y un link personal (`/turno/…`) para verlo o cancelarlo. Los botones "Reservar turno" del
+sitio llevan ahí; con `NEXT_PUBLIC_ONLINE_BOOKING=0` vuelven a llevar a AgendaPro.
 
-- **Servicios, precios, duraciones, barberos y horarios** se editan en `src/content/site.ts`
-  (`services`, `barbers` y `booking`). No cambiar los `id`: quedan guardados en cada turno.
-- **Reglas** (en `booking`): turnos cada 30 min, hasta 21 días para adelante, con 60 min
-  de anticipación mínima y hasta 3 turnos futuros por email.
-- **Sin turnos pisados:** además de calcular los horarios libres, la base rechaza dos
-  turnos confirmados del mismo barbero que se superpongan.
-- **Pendiente:** hoy todos los barberos atienden todo el horario del local. Faltan
-  francos, vacaciones y horarios propios, y el panel para que la barbería vea la agenda.
+### La base de datos (Supabase)
+
+| Tabla | Qué guarda |
+| ----- | ---------- |
+| `services` | Servicios: nombre, descripción, qué incluye, precio, duración, orden, activo |
+| `barbers` | Barberos: nombre, nombre completo, rol, foto, orden, activo |
+| `barber_hours` | Horario de cada barbero por día (0 = domingo … 6 = sábado). Sin fila = franco |
+| `clients` | Clientes, identificados por email |
+| `appointments` | Turnos: cliente, barbero, servicio, precio, inicio, fin, estado |
+
+**Precios, servicios, barberos y francos se cambian desde Supabase → Table Editor**, sin
+tocar el código. El sitio toma los cambios en pocos minutos. Para sacar un servicio o un
+barbero, poner `active` en `false` (no borrarlo: queda en el historial de turnos). No
+cambiar los `id`.
+
+Cada turno guarda el nombre y el precio del servicio al momento de reservar, así el
+historial no cambia cuando se actualizan los precios. La base rechaza dos turnos
+confirmados del mismo barbero que se superpongan.
+
+Las tablas se crean con `npm run db:migrate` (lee `DATABASE_URL` de `.env.local`). Los
+cambios de estructura van como archivos nuevos en `db/migrations/`.
+
+Los valores de `services`, `barbers` y `booking.weeklyHours` en `src/content/site.ts` son
+de respaldo: solo se usan si la base no está configurada.
+
+**Reglas** (en `booking`, `src/content/site.ts`): turnos cada 30 min, hasta 21 días para
+adelante, con 60 min de anticipación mínima y hasta 3 turnos futuros por email.
+
+### Mails
+
+Se manda un mail al cliente al reservar y al cancelar (y, si se configura
+`BOOKING_NOTIFY_EMAIL`, un aviso a la barbería).
+
+- **Sin dominio propio (ahora):** una cuenta de Gmail de la barbería. En Google: activar
+  la verificación en dos pasos y crear una contraseña de aplicación en
+  <https://myaccount.google.com/apppasswords>. Cargar `SMTP_USER` (la casilla) y
+  `SMTP_PASS` (la contraseña de aplicación, sin espacios).
+- **Con dominio propio (más adelante):** cambiar a una casilla del dominio, o a Resend
+  (`RESEND_API_KEY` y `EMAIL_FROM`), y borrar `SMTP_USER`/`SMTP_PASS`. No hay que tocar
+  el código: solo las variables en Vercel y un redeploy.
 
 ### En local
 
-No hay que configurar nada: `npm run dev` usa una base de prueba guardada en `.data/`
-y, en vez de enviar mails, los guarda como archivos en `.data/outbox/`. Para empezar de
-cero, borrar la carpeta `.data/`.
+`npm run dev` usa la base de `DATABASE_URL` si está en `.env.local`; si no, una base de
+prueba en `.data/`. Sin medio de envío configurado, los mails se guardan como archivos en
+`.data/outbox/`.
 
-### Puesta en producción (una sola vez)
+### Variables en Vercel (Settings → Environment Variables)
 
-1. **Base de datos.** Crear un proyecto en [Supabase](https://supabase.com). En
-   **Connect**, copiar la cadena de **Transaction pooler** (puerto 6543).
-2. **Tablas.** Copiar `.env.example` como `.env.local`, pegar esa cadena en
-   `DATABASE_URL` y correr `npm run db:migrate`.
-3. **Mails.** Crear una cuenta en [Resend](https://resend.com), verificar el dominio
-   propio y generar una API key.
-4. **Variables en Vercel** (Settings → Environment Variables): `DATABASE_URL`,
-   `RESEND_API_KEY`, `EMAIL_FROM` y, si se quiere, `BOOKING_NOTIFY_EMAIL`.
-5. **Redeploy** y probar una reserva real en `/reservar`.
-6. **Activar.** Cuando esté probado, agregar `NEXT_PUBLIC_ONLINE_BOOKING=1` y volver a
-   deployar: recién ahí los botones "Reservar turno" dejan de ir a AgendaPro.
+`DATABASE_URL`, `SMTP_USER`, `SMTP_PASS` y, si se quiere, `EMAIL_FROM` y
+`BOOKING_NOTIFY_EMAIL`. Después de cargarlas o cambiarlas, hacer **Redeploy**. Mientras
+falte `DATABASE_URL`, `/reservar` muestra los links a AgendaPro y WhatsApp.
 
-Mientras `DATABASE_URL` no esté cargada en Vercel, `/reservar` muestra los links a
-AgendaPro y WhatsApp.
-
-Los turnos se pueden ver en Supabase → Table Editor → `appointments`.
+Los turnos se ven en Supabase → Table Editor → `appointments`.
 
 ## Deploy
 

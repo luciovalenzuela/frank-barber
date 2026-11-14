@@ -1,6 +1,6 @@
 import { randomBytes } from "node:crypto";
 import { z } from "zod";
-import { barbers, booking, services } from "@/content/site";
+import { booking } from "@/content/site";
 import {
   ANY_BARBER,
   addDays,
@@ -12,8 +12,10 @@ import {
   weekday,
   type DayAvailability,
   type Interval,
+  type DayHours,
   type Slot,
 } from "@/lib/booking/availability";
+import { getCatalog, type Catalog } from "./catalog";
 import { getDb, isOverlapError } from "./db/client";
 import { sendBookingEmails, sendCancellationEmails } from "./emails";
 
@@ -34,6 +36,7 @@ export type Appointment = {
 
 type AppointmentRow = {
   id: string;
+  barber_name: string | null;
   manage_token: string;
   status: "confirmed" | "cancelled";
   starts_at: Date | string;
@@ -47,11 +50,12 @@ type AppointmentRow = {
 };
 
 const APPOINTMENT_SELECT = `
-  select a.id, a.manage_token, a.status, a.starts_at, a.ends_at, a.barber_id,
+  select a.id, a.manage_token, a.status, a.starts_at, a.ends_at, a.barber_id, b.name as barber_name,
          a.service_name, a.price_ars,
          c.name as client_name, c.email as client_email, c.phone as client_phone
   from appointments a
-  join clients c on c.id = a.client_id`;
+  join clients c on c.id = a.client_id
+  left join barbers b on b.id = a.barber_id`;
 
 function toAppointment(row: AppointmentRow): Appointment {
   return {
@@ -61,7 +65,7 @@ function toAppointment(row: AppointmentRow): Appointment {
     startsAt: new Date(row.starts_at),
     endsAt: new Date(row.ends_at),
     barberId: row.barber_id,
-    barberName: barbers.find((barber) => barber.id === row.barber_id)?.name ?? row.barber_id,
+    barberName: row.barber_name ?? row.barber_id,
     serviceName: row.service_name,
     priceArs: row.price_ars,
     clientName: row.client_name,
@@ -70,9 +74,9 @@ function toAppointment(row: AppointmentRow): Appointment {
   };
 }
 
-function resolveBarberIds(barberChoice: string) {
-  if (barberChoice === ANY_BARBER) return barbers.map((barber) => barber.id);
-  return barbers.some((barber) => barber.id === barberChoice) ? [barberChoice] : null;
+function resolveBarberIds(catalog: Catalog, barberChoice: string) {
+  if (barberChoice === ANY_BARBER) return catalog.barbers.map((barber) => barber.id);
+  return catalog.barbers.some((barber) => barber.id === barberChoice) ? [barberChoice] : null;
 }
 
 /** Turnos confirmados de los barberos indicados que caen dentro del rango. */
@@ -98,14 +102,24 @@ async function loadBusy(barberIds: string[], from: Date, to: Date) {
   return busy;
 }
 
-function slotsFor(date: string, durationMinutes: number, barberIds: string[], busy: Record<string, Interval[]>, now: Date) {
+function slotsFor(
+  catalog: Catalog,
+  date: string,
+  durationMinutes: number,
+  barberIds: string[],
+  busy: Record<string, Interval[]>,
+  now: Date,
+) {
+  const day = weekday(date);
+  const barberHours: Record<string, DayHours> = {};
+  for (const id of barberIds) barberHours[id] = catalog.hours[id]?.[day] ?? null;
+
   return freeSlots({
     date,
-    hours: booking.weeklyHours[weekday(date)] ?? null,
+    barberHours,
     durationMinutes,
     slotMinutes: booking.slotMinutes,
     utcOffset: booking.utcOffset,
-    barberIds,
     busy,
     notBefore: now.getTime() + booking.minLeadMinutes * 60_000,
   });
@@ -113,10 +127,11 @@ function slotsFor(date: string, durationMinutes: number, barberIds: string[], bu
 
 /** Días reservables desde hoy, con los horarios libres y qué barberos pueden en cada uno. */
 export async function getAvailability(serviceId: string): Promise<DayAvailability[] | null> {
-  const service = services.find((item) => item.id === serviceId);
+  const catalog = await getCatalog();
+  const service = catalog.services.find((item) => item.id === serviceId);
   if (!service) return null;
 
-  const barberIds = barbers.map((barber) => barber.id);
+  const barberIds = catalog.barbers.map((barber) => barber.id);
   const now = new Date();
   const today = localDate(now, booking.timeZone);
   const dates = Array.from({ length: booking.daysAhead }, (_, index) => addDays(today, index));
@@ -125,7 +140,7 @@ export async function getAvailability(serviceId: string): Promise<DayAvailabilit
 
   return dates.map((date) => ({
     date,
-    slots: slotsFor(date, service.durationMinutes, barberIds, busy, now).map((slot) => ({
+    slots: slotsFor(catalog, date, service.durationMinutes, barberIds, busy, now).map((slot) => ({
       time: slot.time,
       barberIds: slot.barberIds,
     })),
@@ -167,8 +182,9 @@ export async function createBooking(input: BookingInput): Promise<BookingResult>
   }
   const data = parsed.data;
 
-  const service = services.find((item) => item.id === data.serviceId);
-  const barberIds = resolveBarberIds(data.barberId);
+  const catalog = await getCatalog();
+  const service = catalog.services.find((item) => item.id === data.serviceId);
+  const barberIds = resolveBarberIds(catalog, data.barberId);
   if (!service || !barberIds) {
     return { ok: false, code: "invalid", message: "Elegí un servicio y un barbero." };
   }
@@ -183,7 +199,7 @@ export async function createBooking(input: BookingInput): Promise<BookingResult>
   const dayStart = new Date(toInstant(data.date, "00:00", booking.utcOffset));
   const dayEnd = new Date(toInstant(addDays(data.date, 1), "00:00", booking.utcOffset));
   const busy = await loadBusy(barberIds, dayStart, dayEnd);
-  const slot: Slot | undefined = slotsFor(data.date, service.durationMinutes, barberIds, busy, now).find(
+  const slot: Slot | undefined = slotsFor(catalog, data.date, service.durationMinutes, barberIds, busy, now).find(
     (item) => item.time === data.time,
   );
   if (!slot) return SLOT_TAKEN;

@@ -1,9 +1,11 @@
-import { bookingLink, formatPrice, services, servicesExtras } from "@/content/site";
+import { bookingLink, formatPrice, servicesExtras } from "@/content/site";
 import { ButtonLink } from "@/components/ui/Button";
 import { Reveal } from "@/components/ui/Reveal";
 import { SectionHeading } from "@/components/ui/SectionHeading";
+import { getPublicCatalog } from "@/server/catalog";
 
-export function Services() {
+export async function Services() {
+  const { services } = await getPublicCatalog();
   return (
     <section id="servicios" className="bg-coal py-20 sm:py-28">
       <div className="mx-auto max-w-6xl px-5">

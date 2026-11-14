@@ -1,8 +1,9 @@
 import type { Metadata } from "next";
-import { barbers, services, site, whatsappLink } from "@/content/site";
+import { site, whatsappLink } from "@/content/site";
 import { BookingForm } from "@/components/booking/BookingForm";
 import { PageShell } from "@/components/layout/PageShell";
 import { ButtonLink } from "@/components/ui/Button";
+import { getPublicCatalog } from "@/server/catalog";
 import { isDatabaseConfigured } from "@/server/db/client";
 
 export const metadata: Metadata = {
@@ -11,7 +12,8 @@ export const metadata: Metadata = {
   alternates: { canonical: "/reservar" },
 };
 
-export default function ReservarPage() {
+export default async function ReservarPage() {
+  const { services, barbers } = await getPublicCatalog();
   return (
     <PageShell>
       <p className="text-xs font-bold uppercase tracking-[0.35em] text-gold">Turnos</p>
