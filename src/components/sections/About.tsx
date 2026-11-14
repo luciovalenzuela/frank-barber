@@ -34,17 +34,17 @@ export function About() {
         </div>
 
         <h3 className="mt-20 text-xs font-bold uppercase tracking-[0.35em] text-gold">El equipo</h3>
-        <ul className="mt-6 grid gap-5 sm:grid-cols-3">
+        <ul className="mt-6 grid grid-cols-2 gap-5 lg:grid-cols-4">
           {barbers.map((barber, index) => (
             <li key={index}>
               <Reveal delay={index * 100}>
                 <Photo
                   src={barber.photo}
                   alt={`Foto de ${barber.name}`}
-                  sizes="(min-width: 640px) 33vw, 100vw"
+                  sizes="(min-width: 1024px) 25vw, 50vw"
                   className="aspect-[4/5]"
                 />
-                <p className="mt-4 font-display text-2xl text-cream">{barber.name}</p>
+                <p className="mt-4 font-display text-xl text-cream sm:text-2xl">{barber.name}</p>
                 <p className="text-sm text-sand">{barber.role}</p>
               </Reveal>
             </li>

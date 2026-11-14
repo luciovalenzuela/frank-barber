@@ -1,4 +1,4 @@
-import { fullAddress, mapEmbedUrl, mapLink, openingHours, site } from "@/content/site";
+import { cityLine, fullAddress, mapEmbedUrl, mapLink, openingHours, site } from "@/content/site";
 import { Reveal } from "@/components/ui/Reveal";
 import { SectionHeading } from "@/components/ui/SectionHeading";
 import { ClockIcon, PinIcon } from "@/components/ui/icons";
@@ -40,7 +40,7 @@ export function Location() {
               <address className="mt-4 text-base not-italic leading-relaxed text-cream">
                 {site.location.address}
                 <br />
-                <span className="text-cream/80">{site.location.city}</span>
+                <span className="text-cream/80">{cityLine}</span>
                 {site.location.note ? (
                   <>
                     <br />

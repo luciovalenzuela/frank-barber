@@ -1,14 +1,15 @@
 import type { ReactNode } from "react";
-import { bookingLink, instagramLink, site } from "@/content/site";
+import { bookingLink, instagramLink, site, whatsappLink } from "@/content/site";
 import { Reveal } from "@/components/ui/Reveal";
 import { SectionHeading } from "@/components/ui/SectionHeading";
-import { InstagramIcon, PhoneIcon, WhatsAppIcon } from "@/components/ui/icons";
+import { CalendarIcon, InstagramIcon, PhoneIcon, WhatsAppIcon } from "@/components/ui/icons";
 import { ContactForm } from "./ContactForm";
 
 type Channel = { label: string; value: string; href: string; icon: ReactNode };
 
 const channels: Channel[] = [
-  { label: "WhatsApp", value: "Escribinos y reservá", href: bookingLink, icon: <WhatsAppIcon /> },
+  { label: "Turnos online", value: "Reservá en AgendaPro", href: bookingLink, icon: <CalendarIcon /> },
+  { label: "WhatsApp", value: "Escribinos", href: whatsappLink(), icon: <WhatsAppIcon /> },
   {
     label: "Teléfono",
     value: site.contact.phoneDisplay,
@@ -30,7 +31,7 @@ export function Contact() {
         <SectionHeading
           eyebrow="Contacto"
           title="Hablemos"
-          description="Para turnos, lo más rápido es WhatsApp. Para cualquier otra consulta, dejanos un mensaje."
+          description="Para turnos, lo más rápido es reservar online. Para cualquier otra consulta, escribinos."
         />
 
         <div className="mt-14 grid gap-8 lg:grid-cols-5">

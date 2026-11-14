@@ -27,7 +27,7 @@ export function ContactForm() {
 
     const submitter = (event.nativeEvent as SubmitEvent).submitter as HTMLButtonElement | null;
 
-    if (submitter?.value === "email") {
+    if (submitter?.value === "email" && site.contact.email) {
       const subject = encodeURIComponent(`Consulta de ${name}`);
       window.location.href = `mailto:${site.contact.email}?subject=${subject}&body=${encodeURIComponent(text)}`;
     } else {
@@ -63,10 +63,12 @@ export function ContactForm() {
           <WhatsAppIcon className="text-lg" />
           Enviar por WhatsApp
         </button>
-        <button type="submit" name="via" value="email" className={buttonClasses("outline", "cursor-pointer")}>
-          <MailIcon className="text-lg" />
-          Enviar por email
-        </button>
+        {site.contact.email ? (
+          <button type="submit" name="via" value="email" className={buttonClasses("outline", "cursor-pointer")}>
+            <MailIcon className="text-lg" />
+            Enviar por email
+          </button>
+        ) : null}
       </div>
     </form>
   );

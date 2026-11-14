@@ -1,6 +1,6 @@
 import type { Metadata, Viewport } from "next";
 import { DM_Serif_Display, Manrope } from "next/font/google";
-import { fullAddress, instagramLink, site, siteUrl } from "@/content/site";
+import { instagramLink, site, siteUrl } from "@/content/site";
 import "./globals.css";
 
 const display = DM_Serif_Display({
@@ -54,7 +54,30 @@ const jsonLd = {
   description: site.description,
   url: siteUrl,
   telephone: site.contact.phoneHref,
-  address: fullAddress,
+  address: {
+    "@type": "PostalAddress",
+    streetAddress: site.location.address,
+    addressLocality: site.location.locality,
+    addressRegion: site.location.region,
+    postalCode: site.location.postalCode,
+    addressCountry: "AR",
+  },
+  geo: { "@type": "GeoCoordinates", ...site.location.geo },
+  openingHoursSpecification: [
+    {
+      "@type": "OpeningHoursSpecification",
+      dayOfWeek: ["Monday", "Tuesday", "Wednesday"],
+      opens: "09:30",
+      closes: "20:00",
+    },
+    {
+      "@type": "OpeningHoursSpecification",
+      dayOfWeek: ["Thursday", "Friday", "Saturday"],
+      opens: "09:30",
+      closes: "20:30",
+    },
+  ],
+  potentialAction: { "@type": "ReserveAction", target: site.bookingUrl },
   sameAs: [instagramLink],
 };
 

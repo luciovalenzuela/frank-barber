@@ -1,8 +1,9 @@
 /**
  * Contenido del sitio — TODO lo editable vive en este archivo.
  *
- * Los valores marcados con "COMPLETAR" son de ejemplo: reemplazalos por los
- * datos reales de la barbería antes de publicar.
+ * Los datos de contacto, servicios, precios, horarios y equipo salen del
+ * perfil público de la barbería en AgendaPro y Google Maps (noviembre 2026).
+ * Lo marcado con "COMPLETAR" todavía falta o conviene revisarlo.
  */
 
 /** URL pública del sitio. En Vercel se resuelve sola; se puede forzar con NEXT_PUBLIC_SITE_URL. */
@@ -14,33 +15,39 @@ export const siteUrl =
 
 export const site = {
   name: "Frank Barber",
-  tagline: "Cortes clásicos, estilo de hoy.",
+  // COMPLETAR: frase propia de la barbería, si tienen una.
+  tagline: "Cada cliente es único, y su corte también.",
   description:
-    "Frank Barber: barbería de oficio. Cortes, barba y afeitado clásico a navaja. Reservá tu turno por WhatsApp.",
+    "Frank Barber, barbería en Caseros. Corte, barba y afeitado con asesoramiento personalizado. Reservá tu turno online o por WhatsApp.",
 
   contact: {
-    // COMPLETAR: número de WhatsApp en formato internacional, solo dígitos (54 9 + área + número).
-    whatsappNumber: "5491100000000",
-    // COMPLETAR: teléfono tal como se quiere mostrar.
-    phoneDisplay: "+54 9 11 0000-0000",
-    // COMPLETAR: teléfono para el link tel: (con + y sin espacios).
-    phoneHref: "+5491100000000",
-    // COMPLETAR: email que recibe las consultas del formulario.
-    email: "hola@example.com",
-    // COMPLETAR: usuario de Instagram (sin @).
-    instagramUser: "frankbarber",
+    /** Número de WhatsApp en formato internacional, solo dígitos. */
+    whatsappNumber: "541128311134",
+    phoneDisplay: "011 2831-1134",
+    /** Teléfono para el link tel: (con + y sin espacios). */
+    phoneHref: "+541128311134",
+    // COMPLETAR: email de contacto. Con `null` no se muestra ni se ofrece "Enviar por email".
+    email: null as string | null,
+    /** Usuario de Instagram (sin @). */
+    instagramUser: "frankbarbercaseros",
   },
 
   location: {
-    // COMPLETAR: dirección real. También se usa para ubicar el mapa.
-    address: "Av. Siempre Viva 123",
-    city: "Buenos Aires, Argentina",
-    // Opcional: indicaciones cortas (piso, entre calles, etc.).
-    note: "Local a la calle",
+    address: "Gral. Manuel Belgrano 4779",
+    locality: "Caseros",
+    region: "Provincia de Buenos Aires",
+    postalCode: "B1678",
+    /** Coordenadas para los datos estructurados (Google). */
+    geo: { latitude: -34.6068358, longitude: -58.5634561 },
+    // Opcional: indicaciones cortas (entre calles, referencia, etc.).
+    note: null as string | null,
   },
 
-  /** Mensaje con el que se abre WhatsApp al tocar "Reservar turno". */
-  bookingMessage: "¡Hola! Quiero reservar un turno en Frank Barber.",
+  /** Página de reservas online. Es a donde lleva "Reservar turno". */
+  bookingUrl: "https://agendapro.com/site/ar/frankbarber/80594",
+
+  /** Mensaje con el que se abre WhatsApp desde el sitio. */
+  whatsappMessage: "¡Hola! Vengo desde la web de Frank Barber.",
 } as const;
 
 export const navigation = [
@@ -56,49 +63,55 @@ export type Service = {
   description: string;
   price: string;
   duration: string;
-  featured?: boolean;
+  /** Etiqueta opcional. Los servicios con etiqueta se muestran destacados. */
+  badge?: string;
 };
 
-// COMPLETAR: lista real de servicios y precios.
+/** Servicios y precios tal como figuran en la página de reservas. Actualizar acá cuando cambien. */
 export const services: Service[] = [
   {
-    name: "Corte",
-    description: "Corte a tijera o máquina, lavado y peinado.",
-    price: "$ 00.000",
-    duration: "40 min",
+    name: "Corte de cabello",
+    description:
+      "Con asesoramiento profesional, adaptado a tus rasgos y tu estilo. Incluye lavado premium con productos Schwarzkopf.",
+    price: "$ 19.000",
+    duration: "30 min",
   },
   {
-    name: "Corte + Barba",
-    description: "El combo completo: corte, perfilado de barba y toalla caliente.",
-    price: "$ 00.000",
+    name: "Corte y barba",
+    description:
+      "Corte de cabello y arreglo de barba con asesoramiento personalizado, vapor facial iónico y lavado premium.",
+    price: "$ 24.000",
     duration: "60 min",
-    featured: true,
+    badge: "Servicio completo",
   },
   {
-    name: "Barba",
-    description: "Perfilado, rebaje y terminación con navaja.",
-    price: "$ 00.000",
-    duration: "25 min",
-  },
-  {
-    name: "Afeitado clásico",
-    description: "Afeitado a navaja con toalla caliente y bálsamo.",
-    price: "$ 00.000",
+    name: "Barba clásica",
+    description:
+      "Perfilado limpio y preciso, con vapor facial iónico y tónicos y aceites que hidratan y ayudan a modelar la barba.",
+    price: "$ 18.000",
     duration: "30 min",
   },
   {
-    name: "Corte niños",
-    description: "Para los más chicos, hasta 12 años.",
-    price: "$ 00.000",
+    name: "Afeitado de barba",
+    description:
+      "Afeitado al ras con vapor facial iónico y productos para hidratar, calmar y proteger la piel.",
+    price: "$ 18.000",
     duration: "30 min",
   },
   {
-    name: "Cejas",
-    description: "Perfilado de cejas con navaja.",
-    price: "$ 00.000",
-    duration: "10 min",
+    name: "Corte y afeitado",
+    description:
+      "Corte de cabello y afeitado al ras, con asesoramiento personalizado, vapor facial iónico y lavado premium.",
+    price: "$ 24.000",
+    duration: "60 min",
   },
 ];
+
+/** Lo que acompaña a todos los servicios. Se muestra como última tarjeta de la grilla. */
+export const servicesExtras = {
+  title: "En todos los servicios",
+  items: ["Espresso, latte o cappuccino de Café Martínez", "Wi-Fi libre", "Un ambiente pensado para relajarte"],
+};
 
 export type GalleryItem = {
   /** Ruta dentro de /public (ej. "/images/galeria-1.jpg"). Sin `src` se muestra un placeholder. */
@@ -114,7 +127,7 @@ export const gallery: GalleryItem[] = [
   { alt: "Corte degradado", tall: true },
   { alt: "Perfilado de barba" },
   { alt: "Interior del local", tall: true },
-  { alt: "Afeitado a navaja" },
+  { alt: "Afeitado" },
   { alt: "Corte clásico", tall: true },
   { alt: "Sillón de barbero", tall: true },
   { alt: "Detalle de herramientas" },
@@ -122,61 +135,62 @@ export const gallery: GalleryItem[] = [
 ];
 
 export const hero = {
-  eyebrow: "Barbería de oficio",
+  eyebrow: "Barbería en Caseros",
   /** Opcional: imagen de fondo dentro de /public (ej. "/images/hero.jpg"). */
   image: undefined as string | undefined,
 };
 
-// COMPLETAR: historia y bajada reales.
+// COMPLETAR: revisar el texto y sumar la historia de la barbería si quieren contarla.
 export const about = {
-  title: "Oficio, navaja y buena charla",
+  title: "Una barbería para sentirte como en casa",
   paragraphs: [
-    "Frank Barber nació de una idea simple: que cortarse el pelo vuelva a ser un rato para uno. Un sillón cómodo, un trabajo prolijo y sin apuro.",
-    "Combinamos las técnicas de la barbería clásica con los estilos de hoy. Cada corte se conversa antes de empezar y se termina con el detalle que hace la diferencia.",
+    "En Frank Barber cada corte empieza con una charla. Te asesoramos según tus rasgos, tus preferencias y tu estilo, y nos tomamos el tiempo necesario para que te vayas conforme.",
+    "Mientras te atendemos podés disfrutar de un café, con Wi-Fi libre, en un ambiente pensado para que te relajes. Te esperamos de lunes a sábado en Caseros.",
   ],
   highlights: [
-    { value: "Clásico", label: "Tijera, navaja y toalla caliente" },
-    { value: "A medida", label: "Cada corte se conversa primero" },
-    { value: "Con turno", label: "Sin esperas ni apuros" },
+    { value: "A medida", label: "Asesoramiento según tu rostro y tu estilo" },
+    { value: "Con café", label: "Espresso, latte o cappuccino mientras te atendemos" },
+    // Dato de Google Maps a noviembre de 2026: actualizarlo cada tanto.
+    { value: "4,8 ★", label: "Más de 180 reseñas en Google" },
   ],
 };
 
 export type Barber = { name: string; role: string; photo?: string };
 
-// COMPLETAR: equipo real (y fotos en /public/images).
+// COMPLETAR: fotos del equipo en /public/images, y roles si quieren distinguirlos.
 export const barbers: Barber[] = [
-  { name: "Frank", role: "Fundador y barbero" },
-  { name: "Nombre Apellido", role: "Barbero" },
-  { name: "Nombre Apellido", role: "Barbero" },
+  { name: "Franco Rodriguez", role: "Barbero" },
+  { name: "Lisandro Cacciatori", role: "Barbero" },
+  { name: "Hernan Lencina", role: "Barbero" },
+  { name: "Valentin Costantino", role: "Barbero" },
 ];
 
 export type OpeningHours = { days: string; hours: string | null };
 
-// COMPLETAR: horarios reales. `hours: null` = cerrado.
+/** `hours: null` = cerrado. */
 export const openingHours: OpeningHours[] = [
-  { days: "Lunes", hours: null },
-  { days: "Martes a viernes", hours: "10:00 – 20:00" },
-  { days: "Sábado", hours: "10:00 – 18:00" },
+  { days: "Lunes a miércoles", hours: "9:30 – 20:00" },
+  { days: "Jueves a sábado", hours: "9:30 – 20:30" },
   { days: "Domingo", hours: null },
 ];
 
 /* ---------- Helpers de links ---------- */
 
-export function whatsappLink(message?: string) {
-  const base = `https://wa.me/${site.contact.whatsappNumber}`;
-  return message ? `${base}?text=${encodeURIComponent(message)}` : base;
+export function whatsappLink(message: string = site.whatsappMessage) {
+  return `https://wa.me/${site.contact.whatsappNumber}?text=${encodeURIComponent(message)}`;
 }
 
-export const bookingLink = whatsappLink(site.bookingMessage);
+export const bookingLink = site.bookingUrl;
 
 export const instagramLink = `https://www.instagram.com/${site.contact.instagramUser}/`;
 
-export const fullAddress = `${site.location.address}, ${site.location.city}`;
+export const cityLine = `${site.location.locality}, ${site.location.region}`;
 
-export const mapEmbedUrl = `https://www.google.com/maps?q=${encodeURIComponent(
-  fullAddress,
-)}&output=embed`;
+export const fullAddress = `${site.location.address}, ${cityLine}`;
 
-export const mapLink = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(
-  fullAddress,
-)}`;
+/** Buscar por nombre + dirección hace que el mapa marque el local y no solo la calle. */
+const mapQuery = encodeURIComponent(`${site.name}, ${fullAddress}`);
+
+export const mapEmbedUrl = `https://www.google.com/maps?q=${mapQuery}&output=embed`;
+
+export const mapLink = `https://www.google.com/maps/search/?api=1&query=${mapQuery}`;

@@ -48,14 +48,18 @@ public/
 
 ### Contenido pendiente
 
-Todos los textos y datos están en [`src/content/site.ts`](src/content/site.ts). Lo que
-todavía es de ejemplo está marcado con `COMPLETAR`:
+Todos los textos y datos están en [`src/content/site.ts`](src/content/site.ts).
+Contacto, dirección, servicios, precios, horarios y equipo salen del perfil público de
+la barbería en AgendaPro y Google Maps (noviembre 2026). **Cuando cambien los precios
+en AgendaPro hay que actualizarlos también acá**: no se sincronizan solos.
 
-- WhatsApp, teléfono, email e Instagram
-- Dirección (también ubica el mapa)
-- Servicios y precios
-- Horarios
-- Texto de "Nosotros" y equipo
+Lo que falta está marcado con `COMPLETAR`:
+
+- Email de contacto (mientras sea `null`, no se muestra)
+- Fotos: hero, galería y equipo
+- Revisar la frase del hero y el texto de "Nosotros"
+
+"Reservar turno" lleva a la página de reservas de AgendaPro (`bookingUrl`).
 
 ### Fotos
 

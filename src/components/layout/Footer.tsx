@@ -1,4 +1,4 @@
-import { fullAddress, instagramLink, mapLink, navigation, site, whatsappLink } from "@/content/site";
+import { bookingLink, fullAddress, instagramLink, mapLink, navigation, site, whatsappLink } from "@/content/site";
 import { Logo } from "@/components/ui/Logo";
 import { InstagramIcon, WhatsAppIcon } from "@/components/ui/icons";
 
@@ -57,9 +57,21 @@ export function Footer() {
                 {site.contact.phoneDisplay}
               </a>
             </li>
+            {site.contact.email ? (
+              <li>
+                <a href={`mailto:${site.contact.email}`} className="transition-colors hover:text-gold">
+                  {site.contact.email}
+                </a>
+              </li>
+            ) : null}
             <li>
-              <a href={`mailto:${site.contact.email}`} className="transition-colors hover:text-gold">
-                {site.contact.email}
+              <a
+                href={bookingLink}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="transition-colors hover:text-gold"
+              >
+                Reservar turno online
               </a>
             </li>
           </ul>

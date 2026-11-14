@@ -1,5 +1,5 @@
 import Image from "next/image";
-import { bookingLink, hero, site } from "@/content/site";
+import { bookingLink, hero, site, whatsappLink } from "@/content/site";
 import { ButtonLink } from "@/components/ui/Button";
 import { WhatsAppIcon } from "@/components/ui/icons";
 
@@ -29,12 +29,10 @@ export function Hero() {
           <p className="mt-6 max-w-md text-lg leading-relaxed text-cream/80 sm:text-xl">{site.tagline}</p>
         </div>
         <div className="fade-up mt-10 flex flex-col gap-3 [animation-delay:360ms] sm:flex-row">
-          <ButtonLink href={bookingLink}>
+          <ButtonLink href={bookingLink}>Reservar turno</ButtonLink>
+          <ButtonLink href={whatsappLink()} variant="outline">
             <WhatsAppIcon className="text-lg" />
-            Reservar turno
-          </ButtonLink>
-          <ButtonLink href="#servicios" variant="outline">
-            Ver servicios
+            WhatsApp
           </ButtonLink>
         </div>
       </div>

@@ -1,4 +1,4 @@
-import { bookingLink, services } from "@/content/site";
+import { bookingLink, services, servicesExtras } from "@/content/site";
 import { ButtonLink } from "@/components/ui/Button";
 import { Reveal } from "@/components/ui/Reveal";
 import { SectionHeading } from "@/components/ui/SectionHeading";
@@ -10,7 +10,7 @@ export function Services() {
         <SectionHeading
           eyebrow="Servicios"
           title="Lo que hacemos"
-          description="Precios de referencia. Ante cualquier duda, escribinos y te asesoramos."
+          description="Cada servicio incluye asesoramiento. Elegí el tuyo y reservá online en un minuto."
         />
 
         <ul className="mt-14 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
@@ -19,12 +19,12 @@ export function Services() {
               <Reveal delay={(index % 3) * 100} className="h-full">
                 <article
                   className={`flex h-full flex-col rounded-lg border p-6 transition-colors duration-300 hover:border-gold/70 ${
-                    service.featured ? "border-gold/60 bg-leather" : "border-line bg-ink"
+                    service.badge ? "border-gold/60 bg-leather" : "border-line bg-ink"
                   }`}
                 >
-                  {service.featured ? (
+                  {service.badge ? (
                     <p className="mb-3 text-[0.65rem] font-bold uppercase tracking-[0.3em] text-gold">
-                      El más pedido
+                      {service.badge}
                     </p>
                   ) : null}
                   <div className="flex items-baseline justify-between gap-4">
@@ -39,6 +39,24 @@ export function Services() {
               </Reveal>
             </li>
           ))}
+
+          <li>
+            <Reveal delay={(services.length % 3) * 100} className="h-full">
+              <div className="barber-stripes flex h-full flex-col justify-center rounded-lg border border-dashed border-line p-6">
+                <h3 className="text-xs font-bold uppercase tracking-[0.3em] text-gold">{servicesExtras.title}</h3>
+                <ul className="mt-4 space-y-2 text-sm leading-relaxed text-cream/85">
+                  {servicesExtras.items.map((item) => (
+                    <li key={item} className="flex gap-3">
+                      <span aria-hidden="true" className="text-gold">
+                        —
+                      </span>
+                      {item}
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            </Reveal>
+          </li>
         </ul>
 
         <Reveal className="mt-12 text-center">
