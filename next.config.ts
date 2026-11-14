@@ -1,8 +1,9 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
-  /* config options here */
   cacheComponents: true,
+  // PGlite (la base local de desarrollo) usa archivos .wasm: no hay que empaquetarla.
+  serverExternalPackages: ["@electric-sql/pglite"],
   partialPrefetching: true,
   turbopack: {
     rules: {

@@ -1,4 +1,4 @@
-import { bookingLink, services, servicesExtras } from "@/content/site";
+import { bookingLink, formatPrice, services, servicesExtras } from "@/content/site";
 import { ButtonLink } from "@/components/ui/Button";
 import { Reveal } from "@/components/ui/Reveal";
 import { SectionHeading } from "@/components/ui/SectionHeading";
@@ -15,7 +15,7 @@ export function Services() {
 
         <ul className="mt-14 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
           {services.map((service, index) => (
-            <li key={service.name}>
+            <li key={service.id}>
               <Reveal delay={(index % 3) * 100} className="h-full">
                 <article
                   className={`flex h-full flex-col rounded-lg border p-6 transition-colors duration-300 hover:border-gold/70 ${
@@ -29,11 +29,11 @@ export function Services() {
                   ) : null}
                   <div className="flex items-baseline justify-between gap-4">
                     <h3 className="font-display text-2xl text-cream">{service.name}</h3>
-                    <p className="shrink-0 text-lg font-bold text-gold tabular-nums">{service.price}</p>
+                    <p className="shrink-0 text-lg font-bold text-gold tabular-nums">{formatPrice(service.priceArs)}</p>
                   </div>
                   <p className="mt-3 flex-1 text-sm leading-relaxed text-sand">{service.description}</p>
                   <p className="mt-5 text-xs font-medium uppercase tracking-[0.2em] text-cream/60">
-                    {service.duration}
+                    {service.durationMinutes} min
                   </p>
                 </article>
               </Reveal>

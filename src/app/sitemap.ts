@@ -1,6 +1,10 @@
 import type { MetadataRoute } from "next";
-import { siteUrl } from "@/content/site";
+import { booking, siteUrl } from "@/content/site";
 
 export default function sitemap(): MetadataRoute.Sitemap {
-  return [{ url: siteUrl, changeFrequency: "monthly", priority: 1 }];
+  const pages: MetadataRoute.Sitemap = [{ url: siteUrl, changeFrequency: "monthly", priority: 1 }];
+  if (booking.enabled) {
+    pages.push({ url: `${siteUrl}/reservar`, changeFrequency: "monthly", priority: 0.8 });
+  }
+  return pages;
 }

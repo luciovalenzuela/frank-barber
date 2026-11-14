@@ -59,53 +59,66 @@ export const navigation = [
 ] as const;
 
 export type Service = {
+  /** Identificador estable: se guarda en la base de datos con cada turno. No cambiarlo. */
+  id: string;
   name: string;
   description: string;
-  price: string;
-  duration: string;
+  /** Precio en pesos, sin puntos. */
+  priceArs: number;
+  /** Duración en minutos. Tiene que ser múltiplo de `booking.slotMinutes`. */
+  durationMinutes: number;
   /** Etiqueta opcional. Los servicios con etiqueta se muestran destacados. */
   badge?: string;
 };
 
-/** Servicios y precios tal como figuran en la página de reservas. Actualizar acá cuando cambien. */
+/** Servicios y precios. Actualizar acá cuando cambien: valen para la landing y para las reservas. */
 export const services: Service[] = [
   {
+    id: "corte",
     name: "Corte de cabello",
     description:
       "Con asesoramiento profesional, adaptado a tus rasgos y tu estilo. Incluye lavado premium con productos Schwarzkopf.",
-    price: "$ 19.000",
-    duration: "30 min",
+    priceArs: 19000,
+    durationMinutes: 30,
   },
   {
+    id: "corte-y-barba",
     name: "Corte y barba",
     description:
       "Corte de cabello y arreglo de barba con asesoramiento personalizado, vapor facial iónico y lavado premium.",
-    price: "$ 24.000",
-    duration: "60 min",
+    priceArs: 24000,
+    durationMinutes: 60,
     badge: "Servicio completo",
   },
   {
+    id: "barba-clasica",
     name: "Barba clásica",
     description:
       "Perfilado limpio y preciso, con vapor facial iónico y tónicos y aceites que hidratan y ayudan a modelar la barba.",
-    price: "$ 18.000",
-    duration: "30 min",
+    priceArs: 18000,
+    durationMinutes: 30,
   },
   {
+    id: "afeitado",
     name: "Afeitado de barba",
     description:
       "Afeitado al ras con vapor facial iónico y productos para hidratar, calmar y proteger la piel.",
-    price: "$ 18.000",
-    duration: "30 min",
+    priceArs: 18000,
+    durationMinutes: 30,
   },
   {
+    id: "corte-y-afeitado",
     name: "Corte y afeitado",
     description:
       "Corte de cabello y afeitado al ras, con asesoramiento personalizado, vapor facial iónico y lavado premium.",
-    price: "$ 24.000",
-    duration: "60 min",
+    priceArs: 24000,
+    durationMinutes: 60,
   },
 ];
+
+export function formatPrice(priceArs: number) {
+  return `$ ${priceArs.toLocaleString("es-AR")}`;
+}
 
 /** Lo que acompaña a todos los servicios. Se muestra como última tarjeta de la grilla. */
 export const servicesExtras = {
@@ -155,24 +168,63 @@ export const about = {
   ],
 };
 
-export type Barber = { name: string; role: string; photo?: string };
+export type Barber = {
+  /** Identificador estable: se guarda en la base de datos con cada turno. No cambiarlo. */
+  id: string;
+  name: string;
+  role: string;
+  photo?: string;
+};
 
 // COMPLETAR: fotos del equipo en /public/images, y roles si quieren distinguirlos.
 export const barbers: Barber[] = [
-  { name: "Franco", role: "Barbero" },
-  { name: "Lisandro", role: "Barbero" },
-  { name: "Hernán", role: "Barbero" },
-  { name: "Valentín", role: "Barbero" },
+  { id: "franco", name: "Franco", role: "Barbero" },
+  { id: "lisandro", name: "Lisandro", role: "Barbero" },
+  { id: "hernan", name: "Hernán", role: "Barbero" },
+  { id: "valentin", name: "Valentín", role: "Barbero" },
 ];
 
 export type OpeningHours = { days: string; hours: string | null };
 
-/** `hours: null` = cerrado. */
+/** Horarios tal como se muestran en la landing. `hours: null` = cerrado. */
 export const openingHours: OpeningHours[] = [
   { days: "Lunes a miércoles", hours: "9:30 – 20:00" },
   { days: "Jueves a sábado", hours: "9:30 – 20:30" },
   { days: "Domingo", hours: null },
 ];
+
+/* ---------- Reservas online ---------- */
+
+export type DayHours = { open: string; close: string } | null;
+
+export const booking = {
+  /** Con la variable NEXT_PUBLIC_ONLINE_BOOKING=1, "Reservar turno" lleva a /reservar en vez de a AgendaPro. */
+  enabled: process.env.NEXT_PUBLIC_ONLINE_BOOKING === "1",
+  timeZone: "America/Argentina/Buenos_Aires",
+  /** Argentina no cambia la hora, así que el desfasaje con UTC es fijo. */
+  utcOffset: "-03:00",
+  /** Cada cuánto empieza un turno. */
+  slotMinutes: 30,
+  /** Hasta cuántos días para adelante se puede reservar. */
+  daysAhead: 21,
+  /** Anticipación mínima para reservar, en minutos. */
+  minLeadMinutes: 60,
+  /** Turnos futuros que puede tener un mismo email a la vez. */
+  maxActivePerClient: 3,
+  /**
+   * Horario de atención por día (0 = domingo … 6 = sábado). Tiene que coincidir con `openingHours`.
+   * COMPLETAR: hoy todos los barberos atienden todo el horario; falta cargar francos y horarios propios.
+   */
+  weeklyHours: {
+    0: null,
+    1: { open: "09:30", close: "20:00" },
+    2: { open: "09:30", close: "20:00" },
+    3: { open: "09:30", close: "20:00" },
+    4: { open: "09:30", close: "20:30" },
+    5: { open: "09:30", close: "20:30" },
+    6: { open: "09:30", close: "20:30" },
+  } as Record<number, DayHours>,
+};
 
 /* ---------- Helpers de links ---------- */
 
@@ -180,7 +232,8 @@ export function whatsappLink(message: string = site.whatsappMessage) {
   return `https://wa.me/${site.contact.whatsappNumber}?text=${encodeURIComponent(message)}`;
 }
 
-export const bookingLink = site.bookingUrl;
+/** A dónde lleva "Reservar turno": al sistema propio si está activado, si no a AgendaPro. */
+export const bookingLink = booking.enabled ? "/reservar" : site.bookingUrl;
 
 export const instagramLink = `https://www.instagram.com/${site.contact.instagramUser}/`;
 

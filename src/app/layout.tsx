@@ -83,7 +83,7 @@ const jsonLd = {
 
 export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
-    <html lang="es-AR" className={`${display.variable} ${body.variable} antialiased`}>
+    <html lang="es-AR" data-scroll-behavior="smooth" className={`${display.variable} ${body.variable} antialiased`}>
       <body className="min-h-svh font-sans">
         {children}
         <script

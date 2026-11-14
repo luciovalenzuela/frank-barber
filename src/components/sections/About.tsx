@@ -36,7 +36,7 @@ export function About() {
         <h3 className="mt-20 text-xs font-bold uppercase tracking-[0.35em] text-gold">El equipo</h3>
         <ul className="mt-6 grid grid-cols-2 gap-5 lg:grid-cols-4">
           {barbers.map((barber, index) => (
-            <li key={index}>
+            <li key={barber.id}>
               <Reveal delay={index * 100}>
                 <Photo
                   src={barber.photo}
