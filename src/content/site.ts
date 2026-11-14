@@ -159,10 +159,10 @@ export type Barber = { name: string; role: string; photo?: string };
 
 // COMPLETAR: fotos del equipo en /public/images, y roles si quieren distinguirlos.
 export const barbers: Barber[] = [
-  { name: "Franco Rodriguez", role: "Barbero" },
-  { name: "Lisandro Cacciatori", role: "Barbero" },
-  { name: "Hernan Lencina", role: "Barbero" },
-  { name: "Valentin Costantino", role: "Barbero" },
+  { name: "Franco", role: "Barbero" },
+  { name: "Lisandro", role: "Barbero" },
+  { name: "Hernán", role: "Barbero" },
+  { name: "Valentín", role: "Barbero" },
 ];
 
 export type OpeningHours = { days: string; hours: string | null };
